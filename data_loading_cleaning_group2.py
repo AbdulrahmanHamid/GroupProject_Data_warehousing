@@ -79,7 +79,7 @@ data_cleaned_group2.drop_duplicates(subset=['EVENT_UNIQUE_ID'], inplace=True)
 print("Total number of Rows After Removing Duplicate Data", data_cleaned_group2.shape[0])
 
 
-# ----------------- FEATURE ENGINEERING -----------------
+# ----------------- FEATURE  -----------------
 
 # Create 'TIME_OF_DAY' from 'OCC_HOUR' to help the model find patterns 
 
@@ -99,7 +99,7 @@ print("\nFeature Engineering: Added 'TIME_OF_DAY'.")
 # 2. REPORT_ Columns: The report date happens AFTER the crime. We predict based on occurrence
 # 3. HOOD_140 / NEIGHBOURHOOD_140: Old standards, redundant with 158.
 # 4. x / y: Duplicates of LAT/LONG.
-# 5. OFFENCE: (Target Leakage).
+# 5. OFFENCE:  it will cause target leakage since it is target description or crime description usually mentions the crime category 
 
 columns_to_drop = [
     'EVENT_UNIQUE_ID', 'OBJECTID', 'OFFENCE', 

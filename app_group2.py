@@ -13,7 +13,6 @@ from flask import Flask, request, jsonify
 import traceback
 import pandas as pd
 import joblib
-import sys
 import os
 
 app = Flask(__name__)
@@ -35,7 +34,6 @@ except:
 def predict():
     if model:
         try:
-            
             # 1. Get JSON data
             json_ = request.json
             print("\nReceived Input:", json_)
@@ -43,7 +41,7 @@ def predict():
             # 2. Convert to DataFrame
             query_df = pd.DataFrame([json_])
             
-            # 3. to convert "Feature Time of Day" 
+            # 3. Feature Engineering (Time of Day)
             if 'OCC_HOUR' in query_df.columns:
                 query_df["TIME_OF_DAY"] = pd.cut(
                     query_df["OCC_HOUR"],
@@ -56,10 +54,10 @@ def predict():
             # 4. One-Hot Encode
             query_df = pd.get_dummies(query_df)
             
-            # 5. Align columns
+            # 5. Align columns 
             query_df = query_df.reindex(columns=model_columns, fill_value=0)
             
-            # 6. Scale data 
+            # 6. Scale data
             scaled_data = scaler.transform(query_df)
             query_scaled = pd.DataFrame(scaled_data, columns=model_columns)
             
@@ -76,13 +74,11 @@ def predict():
 
         except:
             return jsonify({'trace': traceback.format_exc()})
-        
     else:
-        
         return ('No model found. Check file paths.')
 
-
 if __name__ == '__main__':
+    
     
     
     app.run(port=12345, debug=False)
