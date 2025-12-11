@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Major Crime Predictor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Verdana, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: 600;
+            color: #34495e;
+            display: block;
+            margin-top: 15px;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2> crime predictor created by group 2</h2>
+    <form id="crimeForm">
+        
+        <label for="year">Occurrence Year</label>
+        <input type="number" id="year" name="OCC_YEAR" value="2025" required>
+
+        <label for="month">Month</label>
+        <select id="month" name="OCC_MONTH">
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+        </select>
+
+        <label for="dow">Day of Week</label>
+        <select id="dow" name="OCC_DOW">
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+        </select>
+
+        <label for="hour">Hour (0-23)</label>
+        <input type="number" id="hour" name="OCC_HOUR" min="0" max="23" value="12" required>
+
+        <label for="division">Division (e.g., D14, D52)</label>
+        <input type="text" id="division" name="DIVISION" placeholder="D14" required>
+
+        <label for="premises">Premises Type</label>
+        <select id="premises" name="PREMISES_TYPE">
+            <option value="Apartment">Apartment</option>
+            <option value="Commercial">Commercial</option>
+            <option value="Educational">Educational</option>
+            <option value="House">House</option>
+            <option value="Other">Other</option>
+            <option value="Outside">Outside</option>
+            <option value="Transit">Transit</option>
+        </select>
+
+        <button type="submit">Predict Category</button>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    document.getElementById('crimeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = {
+            "OCC_YEAR": parseInt(document.getElementById('year').value),
+            "OCC_MONTH": document.getElementById('month').value,
+            "OCC_DOW": document.getElementById('dow').value,
+            "OCC_HOUR": parseInt(document.getElementById('hour').value),
+            "DIVISION": document.getElementById('division').value,
+            "PREMISES_TYPE": document.getElementById('premises').value
+        };
+
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'block';
+        resultDiv.className = ''; 
+        resultDiv.innerHTML = 'Analyzing';
+
+        fetch('http://127.0.0.1:12345/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+
+            if (data.prediction_label) {
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = 'Predicted Crime Category:<br><span style="font-size: 1.5em;"> ${data.prediction_label}</span>';
+            } else if (data.trace) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = 'Error';
+                console.error(data.trace);
+            }
+        })
+        .catch(error => {
+            resultDiv.className = 'error';
+            resultDiv.innerHTML = 'failed to connect to API';
+            console.error('Error:', error);
+        });
+    });
+</script>
+
+</body>
+</html>

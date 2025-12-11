@@ -10,14 +10,16 @@ to match training data, scales the data, and returns a prediction.
 """
 
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import traceback
 import pandas as pd
 import joblib
 import os
 
 app = Flask(__name__)
+CORS(app)
 
-# Load components
+
 path = "C:\\Users\\abdul\\OneDrive\\Desktop\\Centennial S\\Semester 5\\data wherehousing\\GroupProject_Data_warehousing\\"
 try:
     print("Loading model components...")
